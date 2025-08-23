@@ -7,14 +7,14 @@ on:
 
 jobs:
   Publish: 
-    runs-on: ubuuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5.0.0
+      uses: actions/checkout@v4
     
-    - name: Setup Node
-      uses: actions/setup-node@v3.9.1
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
         node-version: '22.17'
 

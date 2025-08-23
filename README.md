@@ -60,6 +60,29 @@ yarn build
 yarn start create
 ```
 
+## GitHub Actions Setup
+
+This project includes automated CI/CD pipelines that publish to npm when you push to the `develop` branch.
+
+### Prerequisites
+
+1. **NPM Token**: Create an NPM access token
+   - Go to [npmjs.com](https://www.npmjs.com) → Account Settings → Access Tokens
+   - Create a new token with "Automation" type
+   - Copy the token
+
+2. **GitHub Secrets**: Add the NPM token to your repository
+   - Go to your GitHub repository → Settings → Secrets and variables → Actions
+   - Create a new secret named `NPM_TOKEN`
+   - Paste your NPM access token
+
+### How it works
+
+- **On push to `develop`**: 
+  - Runs linting and type checking
+  - Builds the project
+  - Publishes to npm
+
 ## License
 
 MIT
