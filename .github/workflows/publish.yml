@@ -20,6 +20,16 @@ jobs:
 
     - name: Enable Corepack
       run: corepack enable
+    
+    - name: Debug lockfile issue
+      run: |
+        echo "Yarn version: $(yarn --version)"
+        echo "Node version: $(node --version)"
+        echo "Files in root:"
+        ls -la
+        echo "Checking for conflicts:"
+        [ -f yarn.lock ] && echo "yarn.lock exists"
+        [ -f package-lock.json ] && echo "package-lock.json exists"
 
     - name: Install dependencies
       run: yarn install --frozen-lockfile
