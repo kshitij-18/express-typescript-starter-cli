@@ -37,7 +37,18 @@ jobs:
       run: yarn install
 
     - name: Run lint
-      run: yarn lint:check
+      run: |
+        echo "=== Debugging lint issues ==="
+        echo "Current directory:"
+        pwd
+        echo "Files in current directory:"
+        ls -la
+        echo "Checking lint script in package.json:"
+        cat package.json | grep -A 3 -B 1 '"lint'
+        echo "Running lint with verbose output:"
+        yarn lint:check --verbose || yarn lint:check --debug || true
+        echo "=== Running actual lint ==="
+        yarn lint:check
 
     - name: Run type check
       run: yarn type-check
