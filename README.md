@@ -2,6 +2,9 @@
 
 A CLI tool to quickly create Express.js projects with TypeScript, ESLint, Prettier, and other modern development tools.
 
+## NPM Package Link
+https://www.npmjs.com/package/@kshitij05/express-typescript-starter
+
 ## Installation
 
 ```bash
