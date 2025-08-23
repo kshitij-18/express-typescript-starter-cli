@@ -1,0 +1,40 @@
+# Source files (not needed in published package)
+src/**/*.ts
+bin/**/*.ts
+
+# Development files
+.eslintrc.js
+eslint.config.js
+.prettierrc
+.prettierignore
+tsconfig.json
+
+# Development dependencies
+node_modules/
+yarn.lock
+package-lock.json
+
+# Build artifacts (except dist)
+*.tsbuildinfo
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+TODO.md
+
+# Test files
+__tests__/
+*.test.ts
+*.spec.ts
