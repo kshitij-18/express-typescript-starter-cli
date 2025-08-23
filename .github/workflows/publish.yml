@@ -17,23 +17,24 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22.17'
+        registry-url: 'https://registry.npmjs.org'
 
     - name: Enable Corepack
       run: corepack enable
-    
-    # - name: Debug lockfile issue
-    #   run: |
-    #     echo "Yarn version: $(yarn --version)"
-    #     echo "Node version: $(node --version)"
-    #     echo "Files in root:"
-    #     ls -la
-    #     echo "Checking for conflicts:"
-    #     [ -f yarn.lock ] && echo "yarn.lock exists"
-    #     [ -f package-lock.json ] && echo "package-lock.json exists"
+
+    # Debug and fix Yarn v4 configuration
+    - name: Configure Yarn for CI
+      run: |
+        echo "=== Current Yarn config ==="
+        cat .yarnrc.yml || echo "No .yarnrc.yml found"
+        echo "=== Setting CI-friendly config ==="
+        yarn config set enableGlobalCache false
+        yarn config set enableImmutableInstalls false
+        echo "=== Updated config ==="
+        cat .yarnrc.yml
 
     - name: Install dependencies
-      run: rm -f yarn.lock
-           yarn install
+      run: yarn install
 
     - name: Run lint
       run: yarn lint:check
@@ -44,8 +45,15 @@ jobs:
     - name: Build project
       run: yarn build
 
+    # Configure yarn for npm publishing
+    - name: Configure Yarn for NPM publish
+      run: |
+        yarn config set npmRegistryServer "https://registry.npmjs.org"
+        yarn config set npmAuthToken "${NODE_AUTH_TOKEN}"
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
+
     - name: Publish to NPM
-      run: npm publish --access public
+      run: yarn npm publish --access public
       env: 
-        NPM_REGISTRY_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
-    
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
