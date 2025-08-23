@@ -1,0 +1,39 @@
+name: Publish Package Pipeline
+
+on:
+  push: 
+    branches:
+      - develop
+
+jobs:
+  publish: 
+    runs-on: ubuuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5.0.0
+    
+    - name: Setup Node
+      uses: actions/setup-node@v3.9.1
+      with:
+        node-version: '22.17'
+
+    - name: Setup yarn
+      uses: DerYeger/yarn-setup-action@v1.0.1
+      with: 
+        node-version: '22.17'
+
+    - name: Install dependencies
+      run: yarn
+
+    - name: Run lint
+      run: yarn lint:check
+
+    - name: Run build
+      run: yarn build
+
+    - name: Publish to NPM
+      run: npm publish --access public
+      env: 
+        NPM_REGISTRY_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
+    
