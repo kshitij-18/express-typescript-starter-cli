@@ -6,8 +6,8 @@ on:
       - develop
 
 jobs:
-  publish: 
-    runs-on: ubuuntu-22.04
+  Publish: 
+    runs-on: ubuuntu-latest
 
     steps:
     - name: Checkout code
