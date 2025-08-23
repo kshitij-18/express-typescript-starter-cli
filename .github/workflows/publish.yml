@@ -18,18 +18,19 @@ jobs:
       with:
         node-version: '22.17'
 
-    - name: Setup yarn
-      uses: DerYeger/yarn-setup-action@master
-      with: 
-        node-version: '22.17'
+    - name: Enable Corepack
+      run: corepack enable
 
     - name: Install dependencies
-      run: yarn
+      run: yarn install
 
     - name: Run lint
       run: yarn lint:check
 
-    - name: Run build
+    - name: Run type check
+      run: yarn type-check
+
+    - name: Build project
       run: yarn build
 
     - name: Publish to NPM
