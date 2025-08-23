@@ -2,6 +2,9 @@
 
 A CLI tool to quickly create Express.js projects with TypeScript, ESLint, Prettier, and other modern development tools.
 
+# package status
+[![Publish Package Pipeline](https://github.com/kshitij-18/express-typescript-starter-cli/actions/workflows/publish.yml/badge.svg)](https://github.com/kshitij-18/express-typescript-starter-cli/actions/workflows/publish.yml)
+
 ## NPM Package Link
 https://www.npmjs.com/package/@kshitij05/express-typescript-starter
 
