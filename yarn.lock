@@ -425,6 +425,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kshitij05/express-typescript-starter@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@kshitij05/express-typescript-starter@workspace:."
+  dependencies:
+    "@eslint/js": "npm:^9.33.0"
+    "@inquirer/prompts": "npm:^7.8.3"
+    "@types/node": "npm:^24.3.0"
+    "@typescript-eslint/eslint-plugin": "npm:^8.40.0"
+    "@typescript-eslint/parser": "npm:^8.40.0"
+    chalk: "npm:^5.5.0"
+    commander: "npm:^14.0.0"
+    eslint: "npm:^9.33.0"
+    eslint-config-airbnb: "npm:^19.0.4"
+    eslint-config-airbnb-base: "npm:^15.0.0"
+    eslint-config-prettier: "npm:^10.1.8"
+    eslint-plugin-prettier: "npm:^5.5.4"
+    globals: "npm:^16.3.0"
+    handlebars: "npm:^4.7.8"
+    prettier: "npm:^3.6.2"
+    ts-node-dev: "npm:^2.0.0"
+    typescript: "npm:^5.9.2"
+    typescript-eslint: "npm:^8.39.1"
+  bin:
+    create-express-typescript: ./dist/bin/cli.js
+  languageName: unknown
+  linkType: soft
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -1491,31 +1518,6 @@ __metadata:
   checksum: 10c0/d9d3e1eafa21b78464297df91f1776f7fbaa3d5e3f7f0995648ca5b89c069d17055033817348d9f4a43d1c20b0eab84f75af6991751e839df53e4dfd6f22e844
   languageName: node
   linkType: hard
-
-"express-typescript-starter@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "express-typescript-starter@workspace:."
-  dependencies:
-    "@eslint/js": "npm:^9.33.0"
-    "@inquirer/prompts": "npm:^7.8.3"
-    "@types/node": "npm:^24.3.0"
-    "@typescript-eslint/eslint-plugin": "npm:^8.40.0"
-    "@typescript-eslint/parser": "npm:^8.40.0"
-    chalk: "npm:^5.5.0"
-    commander: "npm:^14.0.0"
-    eslint: "npm:^9.33.0"
-    eslint-config-airbnb: "npm:^19.0.4"
-    eslint-config-airbnb-base: "npm:^15.0.0"
-    eslint-config-prettier: "npm:^10.1.8"
-    eslint-plugin-prettier: "npm:^5.5.4"
-    globals: "npm:^16.3.0"
-    handlebars: "npm:^4.7.8"
-    prettier: "npm:^3.6.2"
-    ts-node-dev: "npm:^2.0.0"
-    typescript: "npm:^5.9.2"
-    typescript-eslint: "npm:^8.39.1"
-  languageName: unknown
-  linkType: soft
 
 "fast-deep-equal@npm:^3.1.1, fast-deep-equal@npm:^3.1.3":
   version: 3.1.3

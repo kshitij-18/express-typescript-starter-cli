@@ -2,8 +2,8 @@
 
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { injectvariables } from '../src/commands/injectVariables.js';
 import { askQuestionsAndGetConfig } from '../src/prompts/inquirerPrompt.js';
+import { ProjectGenerator } from '../src/generators/ProjectGenerator.js';
 
 const program = new Command();
 
@@ -29,8 +29,18 @@ program
       );
       return;
     }
-    await injectvariables(projectConfig);
-    console.log(chalk.bgMagentaBright('✅ Successfully created your project'));
+    const projectGenerator = new ProjectGenerator(projectConfig);
+    try {
+      await projectGenerator.generate();
+      console.log(chalk.bgMagentaBright('✅ Successfully created your project'));
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('EEXIST')) {
+        console.log(
+          '⚠️  looks like the project already exists try with a different project name or run this command in a different location'
+        );
+      }
+      throw error;
+    }
   });
 
 program.parse();

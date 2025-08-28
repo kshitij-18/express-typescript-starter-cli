@@ -5,7 +5,7 @@ import HandleBars from 'handlebars';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 
-export const injectvariables = async (projectConfig: ProjectConfig) => {
+export const injectVariables = async (projectConfig: ProjectConfig, fileName: string) => {
   // Get the directory where this file is located (package installation directory)
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
@@ -17,14 +17,21 @@ export const injectvariables = async (projectConfig: ProjectConfig) => {
     '..',
     'src',
     'templates',
-    'package.json.hbs'
+    fileName
   );
 
   const packageJsonTemplateContents = await fs.readFile(
     packageJsonTemplateFilePath,
     'utf-8'
   );
+  await HandleBars.registerHelper(
+    'eq',
+    <T extends keyof ProjectConfig>(
+      projectConfigKey: T,
+      value: (typeof projectConfig)[T]
+    ) => projectConfig[projectConfigKey] === value
+  );
   const compiler = HandleBars.compile(packageJsonTemplateContents);
   const basicResult = compiler(projectConfig);
-  await fs.writeFile(path.join(process.cwd(), 'package1.json'), basicResult);
+  return basicResult;
 };
