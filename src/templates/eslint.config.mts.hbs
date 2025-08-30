@@ -1,0 +1,29 @@
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+{{#if includePrettier}}
+import prettier from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
+{{/if}}
+
+export default tseslint.config(
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {{#if includePrettier}}
+  prettier,
+  {
+    plugins: {
+      prettier: prettierPlugin
+    },
+    rules: {
+      'prettier/prettier': 'error'
+    }
+  },
+  {{/if}}
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'no-console': 'warn'
+    }
+  }
+);

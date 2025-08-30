@@ -3,6 +3,9 @@ import { type ProjectConfig } from '../prompts/index.js';
 import fs from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { injectVariables } from '../commands/injectVariables.js';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+import assert from 'node:assert';
 
 export class ProjectGenerator {
   private projectDirectoryPath: string | undefined;
@@ -24,53 +27,100 @@ export class ProjectGenerator {
     this.projectDirectoryPath = projectDirectoryPath;
   }
 
-  private async injectValues() {
+  private get templateFolderPath() {
+    const __fileName = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__fileName);
+
+    // create a folder with project name
+    const templateFolderPath = join(__dirname, '..', '..', '..', 'src', 'templates');
+    return templateFolderPath;
+  }
+
+  private async injectValues(path: string) {
     // inject values in package.json.hbs
-    return await injectVariables(this.projectConfig, 'package.json.hbs');
+    return await injectVariables(this.projectConfig, path);
   }
 
   /**
    *
-   * @param fileName : Takes in the name of the file to add to the project directory folder or subfolder.
-   * @param fileData Takes in the data which is associated with the file. it can be a Buffer or
-   * @param subFolderName : Takes the name of subFolder in which the file will go in.
+   * @param filePath : Takes in the path of the file to add to the project directory folder.
+   * @param fileData Takes in the data which is associated with the file. it can be a Buffer or.
    */
-  private async putFilesInFolder(
-    fileName: string,
-    fileData: Buffer | string,
-    subFolderName?: string
-  ) {
+  private async putFilesInFolder(filePath: string, fileData: Buffer | string) {
     if (!this.projectDirectoryPath) {
       throw new Error('The Project Directory Path could not be set successfully.');
     }
-    let path: string;
-    if (subFolderName) {
-      path = join(this.projectDirectoryPath, subFolderName);
-    } else {
-      path = this.projectDirectoryPath;
+
+    await fs.writeFile(filePath, fileData);
+  }
+
+  async createGitRepoSitory() {
+    const promisifiedExec = promisify(exec);
+
+    const { stderr } = await promisifiedExec('git init');
+    if (stderr) {
+      throw new Error(`cannot create Git repository here Error: ${stderr}`);
     }
-    // check if path exists
-    try {
-      await fs.stat(path);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        await fs.mkdir(path);
-      } else {
-        throw error;
+  }
+
+  /**
+   * this function takes files from the template folder and loads
+   * them into the project folder according to how they are in the templates folder
+   */
+  async loadFilesAndInjectValues(folderToLoadFilesFrom: string, subFolderPath?: string) {
+    // Step 1. Load files from the templates folder
+    const contentsOfDirectory = await fs.readdir(folderToLoadFilesFrom);
+
+    for (const content of contentsOfDirectory) {
+      const stats = await fs.stat(join(folderToLoadFilesFrom, content));
+      if (stats.isDirectory()) {
+        // create the directory in the project directory
+        // call the function again
+        assert(this.projectDirectoryPath, 'project directory path not found.');
+        await fs.mkdir(join(this.projectDirectoryPath, content));
+        await this.loadFilesAndInjectValues(
+          join(folderToLoadFilesFrom, content),
+          content
+        );
+      } else if (stats.isFile()) {
+        // remove hbs extension
+        const fileExtension = content.split('.').pop();
+        let fileName = content;
+        let fileContent: string | undefined;
+        if (fileExtension && fileExtension === 'hbs') {
+          // remove the fileExtension.
+          fileContent = await this.injectValues(join(folderToLoadFilesFrom, fileName));
+          fileName = fileName.split('.').slice(0, -1).join('.');
+        }
+
+        assert(this.projectDirectoryPath, 'Project directory path not found.');
+        assert(fileContent, 'file content not found.');
+        const targetPath = subFolderPath
+          ? join(this.projectDirectoryPath, subFolderPath, fileName)
+          : join(this.projectDirectoryPath, fileName);
+        await this.putFilesInFolder(targetPath, fileContent);
       }
     }
-
-    await fs.writeFile(join(path, fileName), fileData);
   }
 
   async generate() {
     // create the project name folder
     await this.generateFolder();
 
-    // inject values in the template files.
-    const packageJsonContents = await this.injectValues();
+    // initialize git if the user wants.
+    if (this.projectConfig.initializeGit) {
+      try {
+        await this.createGitRepoSitory();
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log(
+            `🔥: error there was an issue while initializing git. ${error.message}`
+          );
+        }
+      }
+    }
 
-    // put the injected files in to the new project folder.
-    await this.putFilesInFolder('package.json', packageJsonContents);
+    // write a generic logic for loading files from the templates folder. and inject values into each one.
+    await this.loadFilesAndInjectValues(this.templateFolderPath);
   }
 }
