@@ -2,7 +2,7 @@
   "name": "@kshitij05/express-typescript-starter",
   "packageManager": "yarn@4.9.1",
   "type": "module",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "CLI tool to create Express TypeScript boilerplate projects",
   "keywords": [
     "express",
