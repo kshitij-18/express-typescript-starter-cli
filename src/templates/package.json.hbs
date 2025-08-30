@@ -1,5 +1,6 @@
 {
   "name": "{{projectName}}",
+  "description": "{{projectDescription}}",
   "packageManager": "{{packageManager}}@latest",
   "author": "{{authorName}}",
   "type": "module",
@@ -10,7 +11,8 @@
   "cors": "latest",
   "morgan": "latest"{{#if includeTesting}},
   "jest": "latest",
-  "ts-jest": "latest"{{/if}}{{#if (eq dbChoice 'mongodb')}},
+  "ts-jest": "latest",
+  "@types/jest": "latest"{{/if}}{{#if (eq dbChoice 'mongodb')}},
   "mongodb": "latest",
   "mongoose": "latest"{{/if}}{{#if (eq dbChoice 'postgresql')}},
   "pg": "latest",
@@ -23,6 +25,9 @@
   },
   "devDependencies": {
     "@types/node": "latest",
+    "@types/express": "latest",
+    "@types/cors": "latest",
+    "@types/morgan": "latest",
     "globals": "latest",
     "ts-node-dev": "latest",
     "typescript": "latest"{{#if includeEslint}},
@@ -38,17 +43,21 @@
     "eslint-plugin-prettier": "latest"{{/if}}
   },
   "scripts": {
-    "lint": "eslint . --ext .ts,.js,.mjs",
-    "lint:fix": "eslint . --ext .ts,.js,.mjs --fix",
-    "lint:check": "eslint . --ext .ts,.js,.mjs --max-warnings 0",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
     "build": "tsc",
-    "build:check": "yarn type-check && yarn lint:check && yarn format:check",
-    "start": "node dist/bin/cli.js",
-    "dev": "ts-node-dev --respawn --transpile-only bin/cli.ts",
+    "start": "node dist/app.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "clean": "rm -rf dist",
-    "prebuild": "yarn clean"
+    "prebuild": "npm run clean"{{#if includeTesting}},
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"{{/if}}{{#if includeEslint}},
+    "lint": "eslint . --ext .ts,.js,.mjs",
+    "lint:fix": "eslint . --ext .ts,.js,.mjs --fix",
+    "lint:check": "eslint . --ext .ts,.js,.mjs --max-warnings 0"{{/if}}{{#if includePrettier}},
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."{{/if}}{{#if includeDocker}},
+    "docker:build": "docker build -t {{projectName}} .",
+    "docker:run": "docker run -p 3000:3000 {{projectName}}"{{/if}}
   }
 }

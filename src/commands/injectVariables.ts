@@ -24,13 +24,9 @@ export const injectVariables = async (projectConfig: ProjectConfig, fileName: st
     packageJsonTemplateFilePath,
     'utf-8'
   );
-  await HandleBars.registerHelper(
-    'eq',
-    <T extends keyof ProjectConfig>(
-      projectConfigKey: T,
-      value: (typeof projectConfig)[T]
-    ) => projectConfig[projectConfigKey] === value
-  );
+  HandleBars.registerHelper('eq', function (a, b) {
+    return a === b;
+  });
   const compiler = HandleBars.compile(packageJsonTemplateContents);
   const basicResult = compiler(projectConfig);
   return basicResult;

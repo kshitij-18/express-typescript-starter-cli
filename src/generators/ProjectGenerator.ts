@@ -17,6 +17,7 @@ export class ProjectGenerator {
       __dirname,
       '..',
       '..',
+      '..',
       this.projectConfig.projectName
     );
     await fs.mkdir(projectDirectoryPath);

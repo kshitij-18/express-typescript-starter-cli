@@ -2,7 +2,7 @@ import { input, select, confirm } from '@inquirer/prompts';
 import chalk from 'chalk';
 import { PROJECT_NAME_FORMAT } from '../utils/index.js';
 
-export type DbChoice = 'monogdb' | 'mysql' | 'postgres' | 'none';
+export type DbChoice = 'mongodb' | 'mysql' | 'postgresql' | 'none';
 
 export interface ProjectConfig {
   projectName: string;
@@ -44,15 +44,15 @@ export const askQuestionsAndGetConfig = async (): Promise<ProjectConfig | void> 
       choices: [
         {
           name: 'MongoDB',
-          value: 'monogdb',
+          value: 'mongodb',
         },
         {
           name: 'MySQL',
           value: 'mysql',
         },
         {
-          name: 'PostgresSQL',
-          value: 'postgres',
+          name: 'PostgreSQL',
+          value: 'postgresql',
         },
       ],
     });
