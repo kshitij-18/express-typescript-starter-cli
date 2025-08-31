@@ -12,26 +12,21 @@ export class ProjectGenerator {
   constructor(private projectConfig: ProjectConfig) {}
 
   private async generateFolder() {
-    const __fileName = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__fileName);
+    // Get the current working directory where the command is being run
+    const currentWorkingDir = process.cwd();
 
-    // create a folder with project name
-    const projectDirectoryPath = join(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      this.projectConfig.projectName
-    );
+    // create a folder with project name in the current working directory
+    const projectDirectoryPath = join(currentWorkingDir, this.projectConfig.projectName);
     await fs.mkdir(projectDirectoryPath);
     this.projectDirectoryPath = projectDirectoryPath;
   }
 
   private get templateFolderPath() {
+    // Get the directory where the package is installed
     const __fileName = fileURLToPath(import.meta.url);
     const __dirname = dirname(__fileName);
 
-    // create a folder with project name
+    // Navigate to the package root and then to src/templates
     const templateFolderPath = join(__dirname, '..', '..', '..', 'src', 'templates');
     return templateFolderPath;
   }
@@ -57,7 +52,14 @@ export class ProjectGenerator {
   async createGitRepoSitory() {
     const promisifiedExec = promisify(exec);
 
-    const { stderr } = await promisifiedExec('git init');
+    if (!this.projectDirectoryPath) {
+      throw new Error('Project directory path not found.');
+    }
+
+    // Change to the project directory before initializing git
+    const { stderr } = await promisifiedExec('git init', {
+      cwd: this.projectDirectoryPath,
+    });
     if (stderr) {
       throw new Error(`cannot create Git repository here Error: ${stderr}`);
     }

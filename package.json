@@ -14,7 +14,7 @@
   "author": "Kshitij",
   "license": "MIT",
   "bin": {
-    "create-express-typescript": "./dist/bin/cli.js"
+    "express-typescript-starter": "./dist/bin/cli.js"
   },
   "files": [
     "dist/**/*",
