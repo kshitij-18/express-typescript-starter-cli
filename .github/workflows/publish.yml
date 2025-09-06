@@ -21,6 +21,19 @@ jobs:
 
     - name: Enable Corepack
       run: corepack enable
+    
+    - name: Configure Yarn for CI
+      run: |
+        echo "=== Current Yarn config ==="
+        cat .yarnrc.yml || echo "No .yarnrc.yml found"
+        echo "=== Setting CI-friendly config ==="
+        yarn config set enableGlobalCache false
+        yarn config set enableImmutableInstalls false
+        echo "=== Updated config ==="
+        cat .yarnrc.yml
+
+    - name: Install dependencies
+      run: yarn install
 
     - name: Run tests
       run: yarn test
