@@ -22,12 +22,13 @@ export class ProjectGenerator {
   }
 
   private get templateFolderPath() {
-    // Get the directory where the package is installed
+    // Get the directory where this module is located
     const __fileName = fileURLToPath(import.meta.url);
     const __dirname = dirname(__fileName);
 
-    // Navigate to the package root and then to src/templates
-    const templateFolderPath = join(__dirname, '..', '..', '..', 'src', 'templates');
+    // Navigate to the templates folder relative to this module
+    // This works in both Node.js and Vite environments
+    const templateFolderPath = join(__dirname, '..', 'templates');
     return templateFolderPath;
   }
 
@@ -44,6 +45,19 @@ export class ProjectGenerator {
   private async putFilesInFolder(filePath: string, fileData: Buffer | string) {
     if (!this.projectDirectoryPath) {
       throw new Error('The Project Directory Path could not be set successfully.');
+    }
+    console.log('FIle Path', filePath);
+
+    if (!this.projectConfig.includeDocker && filePath.includes('Dockerfile')) {
+      return;
+    }
+
+    if (!this.projectConfig.includeEslint && filePath.includes('eslint')) {
+      return;
+    }
+
+    if (!this.projectConfig.includePrettier && filePath.includes('prettier')) {
+      return;
     }
 
     await fs.writeFile(filePath, fileData);
@@ -103,6 +117,14 @@ export class ProjectGenerator {
         await this.putFilesInFolder(targetPath, fileContent);
       }
     }
+  }
+
+  async cleanUp() {
+    // remove the project folder.
+    if (!this.projectDirectoryPath) {
+      throw new Error('🔥: error no project directory path set.');
+    }
+    await fs.rm(this.projectDirectoryPath, { recursive: true, force: true });
   }
 
   async generate() {
