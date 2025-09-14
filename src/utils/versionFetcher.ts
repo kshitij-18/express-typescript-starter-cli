@@ -28,7 +28,7 @@ async function fetchNpmVersion(): Promise<string> {
     const packageInfo: NpmPackageInfo = (await response.json()) as NpmPackageInfo;
     return packageInfo['dist-tags'].latest;
   } catch (error) {
-    console.warn('Warning: Could not fetch npm version. Using fallback.');
+    console.warn('Warning: Could not fetch npm version. Using fallback.', error);
     return '10.0.0';
   }
 }
@@ -50,7 +50,7 @@ async function fetchYarnVersion(): Promise<string> {
     // Remove 'v' prefix from tag_name (e.g., "v4.9.4" -> "4.9.4")
     return releaseInfo.name.replace(/^v/, '');
   } catch (error) {
-    console.warn('Warning: Could not fetch Yarn version. Using fallback.');
+    console.warn('Warning: Could not fetch Yarn version. Using fallback.', error);
     return '4.9.4';
   }
 }
@@ -69,7 +69,7 @@ async function fetchPnpmVersion(): Promise<string> {
     const packageInfo: NpmPackageInfo = (await response.json()) as NpmPackageInfo;
     return packageInfo['dist-tags'].latest;
   } catch (error) {
-    console.warn('Warning: Could not fetch pnpm version. Using fallback.');
+    console.warn('Warning: Could not fetch pnpm version. Using fallback.', error);
     return '8.0.0';
   }
 }
