@@ -1,0 +1,262 @@
+name: PR Beta Release Pipeline
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types: [opened, synchronize, reopened]
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.17'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Enable Corepack
+      run: corepack enable
+    
+    - name: Configure Yarn for CI
+      run: |
+        echo "=== Current Yarn config ==="
+        cat .yarnrc.yml || echo "No .yarnrc.yml found"
+        echo "=== Setting CI-friendly config ==="
+        yarn config set enableGlobalCache false
+        yarn config set enableImmutableInstalls false
+        echo "=== Updated config ==="
+        cat .yarnrc.yml
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Run tests
+      run: yarn test
+  
+  Lint: 
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.17'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Enable Corepack
+      run: corepack enable
+
+    - name: Configure Yarn for CI
+      run: |
+        echo "=== Current Yarn config ==="
+        cat .yarnrc.yml || echo "No .yarnrc.yml found"
+        echo "=== Setting CI-friendly config ==="
+        yarn config set enableGlobalCache false
+        yarn config set enableImmutableInstalls false
+        echo "=== Updated config ==="
+        cat .yarnrc.yml
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Run lint
+      run: yarn lint:check
+  
+  Typecheck: 
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.17'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Enable Corepack
+      run: corepack enable
+
+    - name: Configure Yarn for CI
+      run: |
+        echo "=== Current Yarn config ==="
+        cat .yarnrc.yml || echo "No .yarnrc.yml found"
+        echo "=== Setting CI-friendly config ==="
+        yarn config set enableGlobalCache false
+        yarn config set enableImmutableInstalls false
+        echo "=== Updated config ==="
+        cat .yarnrc.yml
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Run type check
+      run: yarn type-check
+  
+  Build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.17'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Enable Corepack
+      run: corepack enable
+
+    - name: Configure Yarn for CI
+      run: |
+        echo "=== Current Yarn config ==="
+        cat .yarnrc.yml || echo "No .yarnrc.yml found"
+        echo "=== Setting CI-friendly config ==="
+        yarn config set enableGlobalCache false
+        yarn config set enableImmutableInstalls false
+        echo "=== Updated config ==="
+        cat .yarnrc.yml
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Build project
+      run: yarn build
+  
+  Publish-Beta: 
+    runs-on: ubuntu-latest
+    needs: [Test, Lint, Typecheck, Build]
+    if: github.event.pull_request.draft == false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0  # Fetch all history for proper version calculation
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.17'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Enable Corepack
+      run: corepack enable
+
+    - name: Configure Yarn for CI
+      run: |
+        echo "=== Current Yarn config ==="
+        cat .yarnrc.yml || echo "No .yarnrc.yml found"
+        echo "=== Setting CI-friendly config ==="
+        yarn config set enableGlobalCache false
+        yarn config set enableImmutableInstalls false
+        echo "=== Updated config ==="
+        cat .yarnrc.yml
+
+    - name: Install dependencies
+      run: yarn install
+
+    # Generate beta version
+    - name: Generate Beta Version
+      id: version
+      run: |
+        # Get current version from package.json
+        CURRENT_VERSION=$(node -p "require('./package.json').version")
+        echo "Current version: $CURRENT_VERSION"
+        
+        # Extract major, minor, patch
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+        
+        # Generate beta version with PR number and commit SHA
+        PR_NUMBER=${{ github.event.pull_request.number }}
+        COMMIT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+        BETA_VERSION="${MAJOR}.${MINOR}.${PATCH}-beta.${PR_NUMBER}.${COMMIT_SHA}"
+        
+        echo "Generated beta version: $BETA_VERSION"
+        echo "beta-version=$BETA_VERSION" >> $GITHUB_OUTPUT
+        echo "pr-number=$PR_NUMBER" >> $GITHUB_OUTPUT
+        echo "commit-sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
+
+    # Update package.json with beta version
+    - name: Update Package Version
+      run: |
+        BETA_VERSION="${{ steps.version.outputs.beta-version }}"
+        echo "Updating package.json version to: $BETA_VERSION"
+        
+        # Use node to update the version in package.json
+        node -e "
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          pkg.version = '$BETA_VERSION';
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+        "
+        
+        echo "Updated package.json:"
+        cat package.json | grep '"version"'
+
+    # Configure yarn for npm publishing
+    - name: Configure Yarn for NPM publish
+      run: |
+        yarn config set npmRegistryServer "https://registry.npmjs.org"
+        yarn config set npmAuthToken "${NODE_AUTH_TOKEN}"
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
+
+    - name: Publish Beta to NPM
+      run: |
+        BETA_VERSION="${{ steps.version.outputs.beta-version }}"
+        echo "Publishing beta version: $BETA_VERSION"
+        
+        # Publish with beta tag
+        yarn npm publish --access public --tag beta
+        
+        echo "Published: @kshitij05/express-typescript-starter@$BETA_VERSION"
+      env: 
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
+
+    # Comment on PR with beta version info
+    - name: Comment on PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const betaVersion = '${{ steps.version.outputs.beta-version }}';
+          const prNumber = '${{ steps.version.outputs.pr-number }}';
+          const commitSha = '${{ steps.version.outputs.commit-sha }}';
+          
+          const comment = `## 🚀 Beta Release Published!
+          
+          **Version:** \`${betaVersion}\`
+          **PR:** #${prNumber}
+          **Commit:** \`${commitSha}\`
+          
+          ### Install the beta version:
+          \`\`\`bash
+          npm install -g @kshitij05/express-typescript-starter@beta
+          \`\`\`
+          
+          ### Or install the specific version:
+          \`\`\`bash
+          npm install -g @kshitij05/express-typescript-starter@${betaVersion}
+          \`\`\`
+          
+          ---
+          *This beta version was automatically published from this PR.*`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
