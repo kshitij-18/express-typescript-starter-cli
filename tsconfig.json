@@ -43,6 +43,6 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true
   },
-  "exclude": ["node_modules", "dist", "build", "coverage", "scripts", "src/templates"],
+  "exclude": ["node_modules", "dist", "build", "coverage", "scripts"],
   "include": ["src/**/*.ts", "bin/**/*.ts"]
 }
