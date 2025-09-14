@@ -1,6 +1,7 @@
 import { input, select, confirm } from '@inquirer/prompts';
 import chalk from 'chalk';
 import { PROJECT_NAME_FORMAT } from '../utils/index.js';
+import { getLatestVersionForPackageManager } from '../utils/versionFetcher.js';
 
 export type DbChoice = 'mongodb' | 'mysql' | 'postgresql' | 'none';
 
@@ -10,6 +11,7 @@ export interface ProjectConfig {
   authorName: string;
   dbChoice: DbChoice;
   packageManager: string;
+  packageManagerVersion: string;
   includeTesting: boolean;
   includeDocker: boolean;
   includeEslint: boolean;
@@ -75,6 +77,13 @@ export const askQuestionsAndGetConfig = async (): Promise<ProjectConfig | void> 
       ],
     });
 
+    // Fetch the latest version for the selected package manager
+    console.log(chalk.blue(`Fetching latest version for ${packageManager}...`));
+    const packageManagerVersion = await getLatestVersionForPackageManager(packageManager);
+    console.log(
+      chalk.green(`✓ Using ${packageManager} version ${packageManagerVersion}`)
+    );
+
     const includeTesting = await confirm({
       message: 'Do you want to include testing?',
       default: true,
@@ -106,6 +115,7 @@ export const askQuestionsAndGetConfig = async (): Promise<ProjectConfig | void> 
       authorName,
       dbChoice,
       packageManager,
+      packageManagerVersion,
       includeTesting,
       includeDocker,
       includeEslint,

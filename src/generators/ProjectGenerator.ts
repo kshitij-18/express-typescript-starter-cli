@@ -46,7 +46,6 @@ export class ProjectGenerator {
     if (!this.projectDirectoryPath) {
       throw new Error('The Project Directory Path could not be set successfully.');
     }
-    console.log('FIle Path', filePath);
 
     if (!this.projectConfig.includeDocker && filePath.includes('Dockerfile')) {
       return;

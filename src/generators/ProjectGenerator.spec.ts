@@ -22,6 +22,7 @@ describe('Project Generator Test Suite', () => {
       initializeGit: true,
       packageManager: 'npm',
       projectDescription: 'Dummy Description',
+      packageManagerVersion: '10.0.0',
       projectName: 'Test',
     };
     beforeAll(() => {
