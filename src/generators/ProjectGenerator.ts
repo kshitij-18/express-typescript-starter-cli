@@ -59,6 +59,10 @@ export class ProjectGenerator {
       return;
     }
 
+    if (!(this.projectConfig.packageManager === 'yarn') && filePath.includes('.yarnrc')) {
+      return;
+    }
+
     await fs.writeFile(filePath, fileData);
   }
 
